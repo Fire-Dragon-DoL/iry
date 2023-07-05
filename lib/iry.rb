@@ -1,5 +1,7 @@
 require_relative "iry/version"
+require_relative "iry/handlers/pg"
 require_relative "iry/callbacks"
+require_relative "iry/constraints"
 
 module Iry
   class Error < StandardError

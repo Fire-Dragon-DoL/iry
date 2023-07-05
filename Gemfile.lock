@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     iry (0.1.0)
+      activerecord
 
 GEM
   remote: https://rubygems.org/

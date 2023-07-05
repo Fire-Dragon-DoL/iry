@@ -36,7 +36,8 @@ Gem::Specification.new do |spec|
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 
-  spec.add_development_dependency("activerecord", ">= 7")
+  spec.add_runtime_dependency("activerecord")
+
   spec.add_development_dependency("sord")
   spec.add_development_dependency("pg")
   spec.add_development_dependency("pry-byebug")
