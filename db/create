@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+dropdb iry_development
+dropdb iry_test
+
+createdb iry_development
+createdb iry_test
+
+echo "=== development ==="
+psql --db iry_development < db/schema.pgsql
+echo
+
+echo "=== test ==="
+psql --db iry_test < db/schema.pgsql
+echo
