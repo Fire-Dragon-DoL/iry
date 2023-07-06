@@ -1,5 +1,6 @@
 module Iry
   module Macros
+    # Constraints by name
     # @return [{String => Constraint}]
     def constraints
       @constraints ||= {}
@@ -21,7 +22,7 @@ module Iry
       name ||= Constraint::Unique.infer_name(keys, table_name)
       error_key = keys.first
 
-      if constraints[name]
+      if constraints.key?(name)
         raise ArgumentError, "Constraint already exists"
       end
 
@@ -30,6 +31,29 @@ module Iry
         message: message,
         name: name,
         error_key: error_key
+      )
+    end
+
+    # Tracks check constraint for the given key and convert constraint errors into validation errors
+    # @param key [Symbol] key to apply validation errors to
+    # @param message [Symbol, String] the validation error message
+    # @param name [nil, String] constraint name. If omitted, it will be inferred using table name + key
+    # @return [void]
+    def check_constraint(
+      key,
+      message: :invalid,
+      name: nil
+    )
+      name ||= Constraint::Check.infer_name(key, table_name)
+
+      if constraints.key?(name)
+        raise ArgumentError, "Constraint already exists"
+      end
+
+      constraints[name] = Constraint::Check.new(
+        key,
+        message: message,
+        name: name
       )
     end
   end

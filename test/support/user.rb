@@ -4,4 +4,5 @@ class User < ActiveRecord::Base
   belongs_to :user, optional: true
 
   unique_constraint :unique_text
+  check_constraint :unique_text
 end

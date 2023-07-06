@@ -14,11 +14,11 @@ class ConstraintsTest < Minitest::Test
     assert { fail_user.errors.details.fetch(:unique_text) == [{error: :taken}] }
   end
 
-  # def test_check
-  #   user = User.create(unique_text: "invalid")
+  def test_check
+    user = User.create(unique_text: "invalid")
 
-  #   assert { user.errors.details.fetch(:unique_text) == [{error: :taken}] }
-  # end
+    assert { user.errors.details.fetch(:unique_text) == [{error: :invalid}] }
+  end
 
   # def test_exclude
   #   user = User.create!(exclude_text: SecureRandom.uuid)
@@ -34,4 +34,6 @@ class ConstraintsTest < Minitest::Test
 
   #   assert { user.errors.details.fetch(:exclude_text) == [{error: :taken}] }
   # end
+
+  # TODO: Check for untracked constraint
 end
