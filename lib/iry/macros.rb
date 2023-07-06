@@ -56,5 +56,28 @@ module Iry
         name: name
       )
     end
+
+    # Tracks exclusion constraint for the given key and convert constraint errors into validation errors
+    # @param key [Symbol] key to apply validation errors to
+    # @param message [Symbol, String] the validation error message
+    # @param name [nil, String] constraint name. If omitted, it will be inferred using table name + key
+    # @return [void]
+    def exclusion_constraint(
+      key,
+      message: :taken,
+      name: nil
+    )
+      name ||= Constraint::Exclusion.infer_name(key, table_name)
+
+      if constraints.key?(name)
+        raise ArgumentError, "Constraint already exists"
+      end
+
+      constraints[name] = Constraint::Exclusion.new(
+        key,
+        message: message,
+        name: name
+      )
+    end
   end
 end
