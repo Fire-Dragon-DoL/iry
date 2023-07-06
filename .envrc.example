@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export PGDATABASE=iry_development
+export PGHOST=localhost
+export PGPORT=5432
+export PGUSER=postgres
