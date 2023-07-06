@@ -6,6 +6,7 @@ require_relative "iry/callbacks"
 require_relative "iry/macros"
 require_relative "iry/constraint"
 require_relative "iry/constraint/check"
+require_relative "iry/constraint/exclusion"
 require_relative "iry/constraint/unique"
 
 module Iry

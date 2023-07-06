@@ -5,4 +5,5 @@ class User < ActiveRecord::Base
 
   unique_constraint :unique_text
   check_constraint :unique_text
+  exclusion_constraint :exclude_text
 end
