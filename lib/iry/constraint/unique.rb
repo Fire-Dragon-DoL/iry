@@ -25,8 +25,8 @@ module Iry
       def initialize(
         keys,
         message: :taken,
-        name: nil,
-        error_key: nil
+        name:,
+        error_key:
       )
         @keys = keys
         @message = message
