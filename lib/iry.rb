@@ -8,9 +8,6 @@ require_relative "iry/constraint"
 require_relative "iry/constraint/unique"
 
 module Iry
-  class Error < StandardError
-  end
-
   def self.included(klass)
     klass.class_eval do
       extend(Iry::Macros)
