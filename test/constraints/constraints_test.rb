@@ -5,15 +5,6 @@ class ConstraintsTest < Minitest::Test
     assert { user.errors.empty? }
   end
 
-  def test_unique
-    user = User.create!(unique_text: SecureRandom.uuid)
-
-    fail_user = User.create(unique_text: user.unique_text)
-
-    assert { user.unique_text == fail_user.unique_text }
-    assert { fail_user.errors.details.fetch(:unique_text) == [{error: :taken}] }
-  end
-
   def test_check
     user = User.create(unique_text: "invalid")
 
@@ -29,11 +20,26 @@ class ConstraintsTest < Minitest::Test
     assert { fail_user.errors.details.fetch(:exclude_text) == [{error: :taken}] }
   end
 
-  # def test_foreign_key
-  #   user = User.create(user_id: SecureRandom.uuid)
+  def test_foreign_key
+    user = User.create(user_id: SecureRandom.uuid)
 
-  #   assert { user.errors.details.fetch(:exclude_text) == [{error: :taken}] }
-  # end
+    assert { user.errors.details.fetch(:user_id) == [{error: :required}] }
+  end
+
+  def test_foreign_key_on_association
+    user = User.create(friend_user_id: SecureRandom.uuid)
+
+    assert { user.errors.details.fetch(:friend_user) == [{error: :required}] }
+  end
+
+  def test_unique
+    user = User.create!(unique_text: SecureRandom.uuid)
+
+    fail_user = User.create(unique_text: user.unique_text)
+
+    assert { user.unique_text == fail_user.unique_text }
+    assert { fail_user.errors.details.fetch(:unique_text) == [{error: :taken}] }
+  end
 
   # TODO: Check for untracked constraint
   # TODO: Check for double constraint argument error

@@ -6,6 +6,7 @@ create table if not exists users (
   unique_text text unique not null default gen_random_uuid()::text check (unique_text != 'invalid'),
   exclude_text text not null default gen_random_uuid()::text,
 	user_id uuid references users (id),
+	friend_user_id uuid references users (id),
 	created_at timestamp(6) not null,
 	updated_at timestamp(6) not null,
 	-- acts similar to unique constraint
