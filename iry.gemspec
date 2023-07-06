@@ -1,10 +1,6 @@
-# frozen_string_literal: true
-
-require_relative "lib/iry/version"
-
 Gem::Specification.new do |spec|
   spec.name = "iry"
-  spec.version = Iry::VERSION
+  spec.version = File.read(File.expand_path("VERSION", __dir__)).strip.freeze
   spec.authors = ["Francesco Belladonna"]
   spec.email = ["francesco@fc5.me"]
 
