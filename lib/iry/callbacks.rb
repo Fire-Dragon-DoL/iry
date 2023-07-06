@@ -2,18 +2,21 @@ module Iry
   module Callbacks
     extend self
 
-    # TODO: Auto index name
-    # regexp = /unique\sconstraint\s"#{Regexp.escape(model.class.table_name)}_(.+)_key"/
-
-    # @param model [ActiveRecord::Base]
+    # @param model [Handlers::Model]
     # @yield
+    # @return [void]
     def around_save(model)
       yield
     rescue ActiveRecord::StatementInvalid => err
+      handler = Handlers::Null
       case
       when Handlers::PG.handle?(err)
-        Handlers::PG.handle(err, model)
-      else
+        handler = Handlers::PG
+      end
+
+      is_handled = handler.handle(err, model)
+
+      if !is_handled
         raise
       end
     end

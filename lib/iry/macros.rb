@@ -1,0 +1,36 @@
+module Iry
+  module Macros
+    # @return [{String => Constraint}]
+    def constraints
+      @constraints ||= {}
+    end
+
+    # Tracks uniqueness constraint for the given key (or keys) and convert constraint errors into validation errors
+    # @param key_or_keys [Symbol, <Symbol>] key or array of keys to track the uniqueness constraint of
+    # @param message [Symbol, String] the validation error message
+    # @param name [nil, String] constraint name. If omitted, it will be inferred using table name + keys
+    # @param error_key [nil, Symbol] key to which the validation error will be applied to
+    # @return [void]
+    def unique_constraint(
+      key_or_keys,
+      message: :taken,
+      name: nil,
+      error_key: nil
+    )
+      keys = Array(key_or_keys)
+      name ||= Constraint::Unique.infer_name(keys, table_name)
+      error_key = keys.first
+
+      if constraints[name]
+        raise ArgumentError, "Constraint already exists"
+      end
+
+      constraints[name] = Constraint::Unique.new(
+        keys,
+        message: message,
+        name: name,
+        error_key: error_key
+      )
+    end
+  end
+end
