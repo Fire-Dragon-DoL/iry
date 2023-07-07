@@ -1,6 +1,7 @@
 module Iry
   module Handlers
     # Catch-all handler for unrecognized database adapters
+    # @private
     module Null
       extend self
 

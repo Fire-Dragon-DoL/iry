@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -xe
+mkdir -p rbi
+mkdir -p sig
+tapioca annotations
+tapioca gem
+yard doc
+sord rbi/iry.rbi
+sord sig/iry.rbs

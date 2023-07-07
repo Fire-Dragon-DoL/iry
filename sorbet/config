@@ -1,0 +1,10 @@
+--dir
+.
+--ignore=tmp/
+--ignore=vendor/
+--ignore=bin/
+--ignore=binstubs/
+--ignore=doc/
+--ignore=Rakefile
+--ignore=Gemfile
+--ignore=iry.gemspec

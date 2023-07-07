@@ -1,4 +1,7 @@
 module Iry
+  # Main function to kick-off **Iry** constraint-checking mechanism
+  # If interested in adding support for other databases beside Postgres, modify this file.
+  # @private
   module Callbacks
     extend self
 

@@ -1,0 +1,340 @@
+# Entrypoint of constraint validation, include in a class inheriting {ActiveRecord::Base} and the following class-level
+# methods will be available:
+# - {Macros#constraints}
+# - {Macros#check_constraint}
+# - {Macros#exclusion_constraint}
+# - {Macros#foreign_key_constraint}
+# - {Macros#unique_constraint}
+# 
+# @example User unique constraint validation
+#   # The database schema has a unique constraint on email field
+#   class User < ActiveRecord::Base
+#     include Iry
+# 
+#     unique_constraint :email
+#   end
+# 
+#   user = User.create!(email: "user@example.com")
+#   fail_user = User.create(email: "user@example.com")
+#   fail_user.errors.details.fetch(:email) #=> [{error: :taken}]
+module Iry
+  VERSION: String
+
+  # _@param_ `klass`
+  def self.included: (Module klass) -> void
+
+  # Class-level methods available to classes executing `include Iry`
+  module Macros
+    # Constraints by name
+    def constraints: () -> ::Hash[String, Constraint]
+
+    # Tracks check constraint for the given key and convert constraint errors into validation errors
+    # 
+    # _@param_ `key` — key to apply validation errors to
+    # 
+    # _@param_ `message` — the validation error message
+    # 
+    # _@param_ `name` — constraint name. If omitted, it will be inferred using table name + key
+    def check_constraint: (Symbol key, ?name: String?, ?message: (Symbol | String)) -> void
+
+    # Tracks exclusion constraint for the given key and convert constraint errors into validation errors
+    # 
+    # _@param_ `key` — key to apply validation errors to
+    # 
+    # _@param_ `message` — the validation error message
+    # 
+    # _@param_ `name` — constraint name. If omitted, it will be inferred using table name + key
+    def exclusion_constraint: (Symbol key, ?name: String?, ?message: (Symbol | String)) -> void
+
+    # Tracks foreign key constraint for the given key (or keys) and convert constraint errors into validation errors
+    # 
+    # _@param_ `key_or_keys` — key or array of keys to track the foreign key constraint of
+    # 
+    # _@param_ `message` — the validation error message
+    # 
+    # _@param_ `name` — constraint name. If omitted, it will be inferred using table name + keys
+    # 
+    # _@param_ `error_key` — key to which the validation error will be applied to. If omitted, it will be applied to the first key
+    def foreign_key_constraint: (
+                                  (Symbol | ::Array[Symbol]) key_or_keys,
+                                  ?name: String?,
+                                  ?message: (Symbol | String),
+                                  ?error_key: Symbol?
+                                ) -> void
+
+    # Tracks uniqueness constraint for the given key (or keys) and convert constraint errors into validation errors
+    # 
+    # _@param_ `key_or_keys` — key or array of keys to track the uniqueness constraint of
+    # 
+    # _@param_ `message` — the validation error message
+    # 
+    # _@param_ `name` — constraint name. If omitted, it will be inferred using table name + keys
+    # 
+    # _@param_ `error_key` — key to which the validation error will be applied to. If omitted, it will be applied to the first key
+    def unique_constraint: (
+                             (Symbol | ::Array[Symbol]) key_or_keys,
+                             ?name: String?,
+                             ?message: (Symbol | String),
+                             ?error_key: Symbol?
+                           ) -> void
+  end
+
+  module Handlers
+    # Interface for handlers of different database types
+    # @abstract
+    module Handler
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # _@param_ `err` — possible constraint error to handle
+      # 
+      # _@return_ — true if this database handler is the correct one for this exception
+      def handle?: (ActiveRecord::StatementInvalid err) -> bool
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # _@param_ `err` — possible constraint error to handle
+      # 
+      # _@param_ `model`
+      # 
+      # _@return_ — true if this database handler handled the constraint error
+      def handle: (ActiveRecord::StatementInvalid err, Model model) -> bool
+    end
+
+    # Interface of the model class. This class is usually inherits from {ActiveRecord::Base}
+    # @abstract
+    module ModelClass
+      def table_name: () -> String
+
+      def constraints: () -> ::Hash[String, Constraint]
+    end
+
+    # Interface of the model that should be used to handle constraints.
+    # This object is an instance of {ActiveRecord::Base}
+    # @abstract
+    module Model
+      # sord warn - ActiveModel::Errors wasn't able to be resolved to a constant in this project
+      def errors: () -> ActiveModel::Errors
+
+      def class: () -> ModelClass
+    end
+
+    # PostgreSQL handler through `pg` gem
+    # @private
+    module PG
+      extend Iry::Handlers::PG
+      REGEX: Regexp
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # When true, the handler is able to handle this exception, representing a constraint error in PostgreSQL.
+      # This method must ensure not to raise exception in case the postgresql adapter is missing and as such, the
+      # postgres constant is undefined
+      # 
+      # _@param_ `err`
+      def handle?: (ActiveRecord::StatementInvalid err) -> bool
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # Appends constraint errors as model errors
+      # 
+      # _@param_ `err`
+      # 
+      # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
+      def handle: (ActiveRecord::StatementInvalid err, Model model) -> void
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # When true, the handler is able to handle this exception, representing a constraint error in PostgreSQL.
+      # This method must ensure not to raise exception in case the postgresql adapter is missing and as such, the
+      # postgres constant is undefined
+      # 
+      # _@param_ `err`
+      def self.handle?: (ActiveRecord::StatementInvalid err) -> bool
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # Appends constraint errors as model errors
+      # 
+      # _@param_ `err`
+      # 
+      # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
+      def self.handle: (ActiveRecord::StatementInvalid err, Model model) -> void
+    end
+
+    # Catch-all handler for unrecognized database adapters
+    # @private
+    module Null
+      extend Iry::Handlers::Null
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # Returns always true, catching any unhandled database exception
+      # 
+      # _@param_ `err`
+      def handle?: ((StandardError | ActiveRecord::StatementInvalid) err) -> bool
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # Return always false, failing to handle any constraint
+      # 
+      # _@param_ `err`
+      # 
+      # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
+      def handle: (ActiveRecord::StatementInvalid err, Model model) -> bool
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # Returns always true, catching any unhandled database exception
+      # 
+      # _@param_ `err`
+      def self.handle?: ((StandardError | ActiveRecord::StatementInvalid) err) -> bool
+
+      # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
+      # Return always false, failing to handle any constraint
+      # 
+      # _@param_ `err`
+      # 
+      # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
+      def self.handle: (ActiveRecord::StatementInvalid err, Model model) -> bool
+    end
+  end
+
+  # Main function to kick-off **Iry** constraint-checking mechanism
+  # If interested in adding support for other databases beside Postgres, modify this file.
+  # @private
+  module Callbacks
+    extend Iry::Callbacks
+
+    # _@param_ `model`
+    def around_save: (Handlers::Model model) -> void
+
+    # _@param_ `model`
+    def self.around_save: (Handlers::Model model) -> void
+  end
+
+  # Interface representing a constraint.
+  # A constraint has a name and can apply errors to an object inheriting from {ActiveRecord::Base}
+  # @abstract
+  module Constraint
+    # Sets validation errors on the model
+    # 
+    # _@param_ `model`
+    def apply: (Handlers::Model model) -> void
+
+    # Name of the constraint to be caught from the database
+    def name: () -> String
+
+    # Message to be attached as validation error to the model
+    # (see Handlers::Model)
+    def message: () -> (Symbol | String)
+
+    class Check
+      # Infers the check constraint name based on key and table name
+      # 
+      # _@param_ `key`
+      # 
+      # _@param_ `table_name`
+      def self.infer_name: (Symbol key, String table_name) -> String
+
+      # _@param_ `key` — key to apply error message for check constraint to
+      # 
+      # _@param_ `message` — the validation error message
+      # 
+      # _@param_ `name` — constraint name
+      def initialize: (Symbol key, name: String, ?message: (Symbol | String)) -> void
+
+      # _@param_ `model`
+      def apply: (Handlers::Model model) -> void
+
+      attr_accessor key: Symbol
+
+      attr_accessor message: (Symbol | String)
+
+      attr_accessor name: String
+    end
+
+    class Unique
+      # Infers the unique constraint name based on keys and table name
+      # 
+      # _@param_ `keys`
+      # 
+      # _@param_ `table_name`
+      def self.infer_name: (::Array[Symbol] keys, String table_name) -> String
+
+      # _@param_ `keys` — array of keys to track the uniqueness constraint of
+      # 
+      # _@param_ `message` — the validation error message
+      # 
+      # _@param_ `name` — constraint name
+      # 
+      # _@param_ `error_key` — key to which the validation error will be applied to
+      def initialize: (
+                        ::Array[Symbol] keys,
+                        name: String,
+                        error_key: Symbol,
+                        ?message: (Symbol | String)
+                      ) -> void
+
+      # _@param_ `model`
+      def apply: (Handlers::Model model) -> void
+
+      attr_accessor keys: ::Array[Symbol]
+
+      attr_accessor message: (Symbol | String)
+
+      attr_accessor name: String
+
+      attr_accessor error_key: Symbol
+    end
+
+    class Exclusion
+      # Infers the exclusion constraint name based on key and table name
+      # 
+      # _@param_ `key`
+      # 
+      # _@param_ `table_name`
+      def self.infer_name: (Symbol key, String table_name) -> String
+
+      # _@param_ `key` — key to apply error message for exclusion constraint to
+      # 
+      # _@param_ `message` — the validation error message
+      # 
+      # _@param_ `name` — constraint name
+      def initialize: (Symbol key, name: String, ?message: (Symbol | String)) -> void
+
+      # _@param_ `model`
+      def apply: (Handlers::Model model) -> void
+
+      attr_accessor key: Symbol
+
+      attr_accessor message: (Symbol | String)
+
+      attr_accessor name: String
+    end
+
+    class ForeignKey
+      # Infers the unique constraint name based on keys and table name
+      # 
+      # _@param_ `keys`
+      # 
+      # _@param_ `table_name`
+      def self.infer_name: (::Array[Symbol] keys, String table_name) -> String
+
+      # _@param_ `keys` — array of keys to track the uniqueness constraint of
+      # 
+      # _@param_ `message` — the validation error message
+      # 
+      # _@param_ `name` — constraint name
+      # 
+      # _@param_ `error_key` — key to which the validation error will be applied to
+      def initialize: (
+                        ::Array[Symbol] keys,
+                        name: String,
+                        error_key: Symbol,
+                        ?message: (Symbol | String)
+                      ) -> void
+
+      # _@param_ `model`
+      def apply: (Handlers::Model model) -> void
+
+      attr_accessor keys: ::Array[Symbol]
+
+      attr_accessor message: (Symbol | String)
+
+      attr_accessor name: String
+
+      attr_accessor error_key: Symbol
+    end
+  end
+end

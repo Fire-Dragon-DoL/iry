@@ -1,5 +1,5 @@
 ENV["RAILS_ENV"] = "test"
-Bundler.require(:default, :development, :test)
+Bundler.require(:default, :test)
 require "securerandom"
 require "iry"
 

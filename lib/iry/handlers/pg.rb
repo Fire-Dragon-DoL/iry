@@ -1,8 +1,11 @@
 module Iry
   module Handlers
+    # PostgreSQL handler through `pg` gem
+    # @private
     module PG
       extend self
 
+      # @return [Regexp]
       REGEX = %r{
         (?:
           unique\sconstraint|
@@ -36,7 +39,7 @@ module Iry
       # @return [void]
       def handle(err, model)
         pgerr = err.cause
-        constraint_name_msg = pgerr.result.error_field(::PG::Result::PG_DIAG_MESSAGE_PRIMARY)
+        constraint_name_msg = pgerr.result.error_field(::PG::Constants::PG_DIAG_MESSAGE_PRIMARY)
         match = REGEX.match(constraint_name_msg)
         constraint_name = match[1]
         constraint = model.class.constraints[constraint_name]
