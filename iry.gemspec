@@ -3,6 +3,7 @@ Gem::Specification.new do |spec|
   spec.version = File.read(File.expand_path("VERSION", __dir__)).strip.freeze
   spec.authors = ["Francesco Belladonna"]
   spec.email = ["francesco@fc5.me"]
+  spec.licenses = ["MIT"]
 
   spec.summary = "Transform database constraint errors into activerecord validation errors"
   spec.description = "Transform database constraint errors into activerecord validation errors"
