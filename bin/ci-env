@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+ruby_bin_path="$(realpath "${GITHUB_WORKSPACE}"/"${BUNDLE_PATH}"/ruby/*/bin)"
+binstubs_path="$(realpath "${GITHUB_WORKSPACE}"/"${BUNDLE_BIN}")"
+
+echo "$ruby_bin_path" >> "$GITHUB_PATH"
+echo "$binstubs_path" >> "$GITHUB_PATH"

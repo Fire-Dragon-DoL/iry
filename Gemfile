@@ -4,14 +4,13 @@ source "https://rubygems.org"
 gemspec
 
 gem "activerecord", require: "active_record"
-gem "pry-byebug"
-gem "sord", require: false
-gem "webrick", require: false
 
 group :development do
   gem "sorbet", require: false
+  gem "sord", require: false
   gem "steep", require: false
   gem "tapioca", require: false
+  gem "webrick", require: false
 end
 
 group :test do
@@ -21,5 +20,6 @@ group :test do
 end
 
 group :development, :test do
+  gem "pry-byebug"
   gem "rake", ">= 13"
 end
