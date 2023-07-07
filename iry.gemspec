@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Transform database constraint errors into activerecord validation errors"
   spec.description = "Transform database constraint errors into activerecord validation errors"
   spec.homepage = "https://github.com/Fire-Dragon-DoL/iry"
-  spec.required_ruby_version = ">= 2.6.0"
+  spec.required_ruby_version = ">= 2.7.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org/"
 
