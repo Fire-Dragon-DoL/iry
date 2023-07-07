@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     iry (0.1.0)
-      activerecord
+      activerecord (>= 3)
 
 GEM
   remote: https://rubygems.org/
@@ -47,9 +47,6 @@ GEM
     pry-byebug (3.10.1)
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
-    pry-byebug-power_assert (0.1.2)
-      power_assert (>= 1.0.0)
-      pry-byebug
     racc (1.7.1)
     rainbow (3.1.1)
     rake (13.0.6)
@@ -75,8 +72,7 @@ DEPENDENCIES
   minitest-power_assert
   pg
   pry-byebug
-  pry-byebug-power_assert
-  rake (~> 13.0)
+  rake (>= 13)
   sord
 
 BUNDLED WITH
