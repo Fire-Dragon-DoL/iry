@@ -31,7 +31,8 @@ module Iry
       end
     end
 
-    # Interface of the model that should be used to handle constraints
+    # Interface of the model that should be used to handle constraints.
+    # This object is an instance of {ActiveRecord::Base}
     # @abstract
     module Model
       # @abstract

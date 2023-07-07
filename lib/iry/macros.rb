@@ -1,4 +1,5 @@
 module Iry
+  # Class-level methods available to classes executing `include Iry`
   module Macros
     # Constraints by name
     # @return [{String => Constraint}]
@@ -10,11 +11,12 @@ module Iry
     # @param key [Symbol] key to apply validation errors to
     # @param message [Symbol, String] the validation error message
     # @param name [nil, String] constraint name. If omitted, it will be inferred using table name + key
+    # @raise [ArgumentError] raised if constraint name already in use by another constraint of any type
     # @return [void]
     def check_constraint(
       key,
-      message: :invalid,
-      name: nil
+      name: nil,
+      message: :invalid
     )
       name ||= Constraint::Check.infer_name(key, table_name)
 
@@ -33,11 +35,12 @@ module Iry
     # @param key [Symbol] key to apply validation errors to
     # @param message [Symbol, String] the validation error message
     # @param name [nil, String] constraint name. If omitted, it will be inferred using table name + key
+    # @raise [ArgumentError] raised if constraint name already in use by another constraint of any type
     # @return [void]
     def exclusion_constraint(
       key,
-      message: :taken,
-      name: nil
+      name: nil,
+      message: :taken
     )
       name ||= Constraint::Exclusion.infer_name(key, table_name)
 
@@ -58,11 +61,12 @@ module Iry
     # @param name [nil, String] constraint name. If omitted, it will be inferred using table name + keys
     # @param error_key [nil, Symbol] key to which the validation error will be applied to. If omitted, it will be
     #   applied to the first key
+    # @raise [ArgumentError] raised if constraint name already in use by another constraint of any type
     # @return [void]
     def foreign_key_constraint(
       key_or_keys,
-      message: :required,
       name: nil,
+      message: :required,
       error_key: nil
     )
       keys = Array(key_or_keys)
@@ -87,11 +91,12 @@ module Iry
     # @param name [nil, String] constraint name. If omitted, it will be inferred using table name + keys
     # @param error_key [nil, Symbol] key to which the validation error will be applied to. If omitted, it will be
     #   applied to the first key
+    # @raise [ArgumentError] raised if constraint name already in use by another constraint of any type
     # @return [void]
     def unique_constraint(
       key_or_keys,
-      message: :taken,
       name: nil,
+      message: :taken,
       error_key: nil
     )
       keys = Array(key_or_keys)

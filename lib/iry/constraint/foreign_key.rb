@@ -24,9 +24,9 @@ module Iry
       # @param error_key [Symbol] key to which the validation error will be applied to
       def initialize(
         keys,
-        message: :required,
         name:,
-        error_key:
+        error_key:,
+        message: :required
       )
         @keys = keys
         @message = message

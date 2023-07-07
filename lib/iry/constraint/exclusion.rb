@@ -21,8 +21,8 @@ module Iry
       # @param name [String] constraint name
       def initialize(
         key,
-        message: :taken,
-        name:
+        name:,
+        message: :taken
       )
         @key = key
         @message = message

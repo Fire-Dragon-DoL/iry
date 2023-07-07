@@ -1,0 +1,64 @@
+gem:
+  all: false
+  exclude:
+    # annotated
+    # - activemodel
+    # annotated
+    # - activerecord
+    # annotated
+    # - activesupport
+    - ast
+    - byebug
+    - coderay
+    - commander
+    # - concurrent-ruby
+    # - csv
+    - diff-lcs
+    - erubi
+    # - fileutils
+    - ffi
+    - highline
+    - i18n
+    - language_server-protocol
+    - listen
+    - method_source
+    # - minitest-power_assert
+    # - minitest
+    - netrc
+    - parallel
+    - parlour
+    - parser
+    # - pg
+    # - power_assert
+    - prettier_print
+    - pry-byebug
+    - pry
+    - racc
+    - rainbow
+    - rake
+    - rbi
+    - rbs
+    - rb-fsevent
+    - rb-inotify
+    - sord
+    - spoom
+    - steep
+    - strscan
+    - syntax_tree
+    - tapioca
+    - terminal-table
+    - thor
+    - tzinfo
+    - unicode-display_width
+    - unparser
+    - webrick
+    - yard-sorbet
+    - yard
+  doc: true
+  workers: 8
+dsl:
+  # Add your `dsl` command parameters here:
+  #
+  # exclude:
+  # - SomeGeneratorName
+  # workers: 5

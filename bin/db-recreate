@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 
+set -x
+
 dropdb iry_development
 dropdb iry_test
 
 createdb iry_development
 createdb iry_test
+
+set -e
 
 echo "=== development ==="
 psql --db iry_development < db/schema.pgsql

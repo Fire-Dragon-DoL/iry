@@ -5,4 +5,21 @@ gemspec
 
 gem "activerecord", require: "active_record"
 gem "pry-byebug"
-gem "sord"
+gem "sord", require: false
+gem "webrick", require: false
+
+group :development do
+  gem "sorbet", require: false
+  gem "steep", require: false
+  gem "tapioca", require: false
+end
+
+group :test do
+  gem "pg"
+  gem "minitest"
+  gem "minitest-power_assert"
+end
+
+group :development, :test do
+  gem "rake", ">= 13"
+end
