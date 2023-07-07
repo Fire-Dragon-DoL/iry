@@ -93,7 +93,7 @@ Catches a specific foreign key constraint violation.
     are cleared
 - `create!` and `update!` will raise `ActiveRecord::RecordNotSaved` for constraints that are caught by `iry`, instead
     of `ActiveModel::ValidationError`
-- Currently only PostgreSQL is supported, with the `pg` gem, but it's easy to add support for other databases.
+- Currently only PostgreSQL is supported with the `pg` gem, but it should be simple to add support for other databases.
 
 ## Installation
 
