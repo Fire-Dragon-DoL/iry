@@ -6,5 +6,6 @@ set -vxe
 >&2 printf "In case of errors, make sure to configure environment variables according to .envrc.example"
 
 bundle install
+npm install
 ./bin/db-recreate
 ./bin/types-build

@@ -1,0 +1,28 @@
+{
+  "name": "iry",
+  "version": "0.1.1",
+  "description": "Convert constraint errors into Rails model validation errors.",
+  "private": true,
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fire-Dragon-DoL/iry.git"
+  },
+  "author": "Francesco Belladonna <francesco@fc5-me> (https://github.com/Fire-Dragon-DoL)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Fire-Dragon-DoL/iry/issues"
+  },
+  "homepage": "https://github.com/Fire-Dragon-DoL/iry#readme",
+  "devDependencies": {
+    "conventional-changelog-cli": ">= 3.0.0"
+  }
+}
