@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 set -xe
-srb tc
+exec srb tc
 # TODO: Not functional, can't use gems
 # steep check

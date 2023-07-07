@@ -1,0 +1,57 @@
+name: Iry
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+env:
+  BUNDLE_BIN: "binstubs"
+  BUNDLE_PATH: "vendor/bundle"
+  BUNDLE_JOBS: "4"
+  BUNDLE_RETRY: "3"
+  BUNDLE_FROZEN: "true"
+  BUNDLE_WITHOUT: "development"
+  PGDATABASE: "postgres"
+  PGHOST: "localhost"
+  PGPORT: "5432"
+  PGUSER: "postgres"
+  PGPASSWORD: "postgres"
+
+jobs:
+  build:
+    services:
+      postgres:
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        image: postgres:15.3-alpine
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    runs-on: ubuntu-latest
+    name: Ruby ${{ matrix.ruby }}
+    strategy:
+      matrix:
+        ruby:
+          - "3.2"
+          - "3.0"
+          - "2.7"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Setup ENV
+        run: ./bin/ci-env
+      - name: Setup database
+        run: ./bin/db-recreate
+      - name: Test with Minitest
+        run: rake test
