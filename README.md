@@ -1,6 +1,12 @@
+[![Iry](https://github.com/Fire-Dragon-DoL/iry/actions/workflows/main.yml/badge.svg)](https://github.com/Fire-Dragon-DoL/iry/actions/workflows/main.yml) [![Gem Version](https://badge.fury.io/rb/iry.svg)](https://badge.fury.io/rb/iry)
+
 # Iry
 
 Convert constraint errors into Rails model validation errors.
+
+## Documentation
+
+https://rubydoc.info/gems/iry/frames
 
 ## Usage
 
@@ -44,6 +50,7 @@ fail_user.errors.details.fetch(:unique_text) #=> [{error: :taken}]
 Multiple constraints of the same or different types can be present on the model, as long as the `:name` is different.
 
 The following constraint types are available:
+
 - [`check_constraint`](#check_constraint)
 - [`exclusion_constraint`](#exclusion_constraint)
 - [`foreign_key_constraint`](#foreign_key_constraint)
@@ -53,7 +60,11 @@ The class method `.constraints` is also available, that returns all the constrai
 
 ## Constraints
 
-### `check_constraint`
+### [`check_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:check_constraint)
+
+```rbs
+check_constraint(key, name: nil, message: :invalid) ⇒ void
+```
 
 Catches a specific check constraint violation.
 
@@ -61,7 +72,11 @@ Catches a specific check constraint violation.
 - **name** (optional `String`) constraint name in the database, to detect constraint errors. Infferred if omitted
 - **message** (optional `String` or `Symbol`) error message, defaults to `:invalid`
 
-### `exclusion_constraint`
+### [`exclusion_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:exclusion_constraint)
+
+```rbs
+exclusion_constraint(key, name: nil, message: :taken) ⇒ void
+```
 
 Catches a specific exclusion constraint violation.
 
@@ -69,7 +84,11 @@ Catches a specific exclusion constraint violation.
 - **name** (optional `String`) constraint name in the database, to detect constraint errors. Infferred if omitted
 - **message** (optional `String` or `Symbol`) error message, defaults to `:taken`
 
-### `foreign_key_constraint`
+### [`foreign_key_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:foreign_key_constraint)
+
+```rbs
+foreign_key_constraint(key_or_keys, name: nil, message: :required, error_key: nil) ⇒ void
+```
 
 Catches a specific foreign key constraint violation.
 
@@ -78,7 +97,11 @@ Catches a specific foreign key constraint violation.
 - **message** (optional `String` or `Symbol`) error message, defaults to `:required`
 - **error_key** (optional `Symbol`) which key will have validation errors added to
 
-### `unique_constraint`
+### [`unique_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:unique_constraint)
+
+```rbs
+unique_constraint(key_or_keys, name: nil, message: :taken, error_key: nil) ⇒ void
+```
 
 Catches a specific foreign key constraint violation.
 
