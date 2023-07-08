@@ -1,18 +1,7 @@
 #!/usr/bin/env bash
 
-FROM_SCRATCH="${FROM_SCRATCH:-off}"
-
-echo "Building changelog from scratch"
-
-if [ "$FROM_SCRATCH" = "on" ]; then
-  exec conventional-changelog \
-    --infile CHANGELOG.md \
-    --same-file \
-    --preset angular \
-    --release-count 0
-else
-  exec conventional-changelog \
-    --infile CHANGELOG.md \
-    --same-file \
-    --preset angular
-fi
+exec conventional-changelog \
+  --infile CHANGELOG.md \
+  --same-file \
+  --preset angular \
+  --release-count 0
