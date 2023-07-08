@@ -38,8 +38,9 @@ module Iry
   def self.included(klass)
     klass.class_eval do
       extend(Iry::Macros)
-      # TODO: prepend: true and verify effectiveness
-      around_save(Iry::Callbacks)
+      # Prepend ensures around save happens before all around_save callbacks
+      # adding the errors as soon as possible
+      around_save(Iry::Callbacks, prepend: true)
     end
   end
 end
