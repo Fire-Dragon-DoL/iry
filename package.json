@@ -1,7 +1,7 @@
 {
   "name": "iry",
-  "version": "0.1.1",
-  "description": "Convert constraint errors into Rails model validation errors.",
+  "version": "0.2.0",
+  "description": "Transform database constraint errors into activerecord validation errors",
   "private": true,
   "main": "index.js",
   "directories": {

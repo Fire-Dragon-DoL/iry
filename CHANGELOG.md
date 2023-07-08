@@ -14,6 +14,3 @@
 * **project:** setup ([8a133c2](https://github.com/Fire-Dragon-DoL/iry/commit/8a133c2c19b99881619a9e1c7c11076030755f66))
 * **ruby:** version is forced to >= 2.7 ([f386ce6](https://github.com/Fire-Dragon-DoL/iry/commit/f386ce6db3aab7399b71a15bfed8228884a82f16))
 * **unique-constraint:** test is implemented ([c4266b9](https://github.com/Fire-Dragon-DoL/iry/commit/c4266b910757b6adef18db41dfa5dfd9353c1037))
-
-
-
