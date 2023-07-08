@@ -7,18 +7,23 @@ gem:
     # - activerecord
     # annotated
     # - activesupport
+    # - ansi
     - ast
+    - binding_of_caller
+    - builder
     - byebug
     - coderay
     - commander
     # - concurrent-ruby
     # - csv
+    - debug_inspector
     - diff-lcs
     - erubi
     # - fileutils
     - ffi
     - highline
     - i18n
+    - interception
     - language_server-protocol
     - listen
     - method_source
@@ -32,6 +37,8 @@ gem:
     # - power_assert
     - prettier_print
     - pry-byebug
+    - pry-rescue
+    - pry-stack_explorer
     - pry
     - racc
     - rainbow
@@ -40,6 +47,7 @@ gem:
     - rbs
     - rb-fsevent
     - rb-inotify
+    - ruby-progressbar
     - sord
     - spoom
     - steep

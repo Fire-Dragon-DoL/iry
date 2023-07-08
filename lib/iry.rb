@@ -38,6 +38,7 @@ module Iry
   def self.included(klass)
     klass.class_eval do
       extend(Iry::Macros)
+      # TODO: prepend: true and verify effectiveness
       around_save(Iry::Callbacks)
     end
   end

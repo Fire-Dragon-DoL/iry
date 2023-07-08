@@ -41,6 +41,16 @@ class ConstraintsTest < Minitest::Test
     assert { fail_user.errors.details.fetch(:unique_text) == [{error: :taken}] }
   end
 
-  # TODO: Check for untracked constraint
-  # TODO: Check for double constraint argument error
+  def test_untracked_constraint
+    user = User.create!(untracked_text: SecureRandom.uuid)
+    constraint_err = nil
+
+    begin
+      User.create(untracked_text: user.untracked_text)
+    rescue ActiveRecord::StatementInvalid => err
+      constraint_err = err
+    end
+
+    assert { constraint_err.cause.is_a?(PG::UniqueViolation) }
+  end
 end

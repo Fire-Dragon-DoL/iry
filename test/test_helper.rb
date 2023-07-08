@@ -1,5 +1,13 @@
 ENV["RAILS_ENV"] = "test"
 Bundler.require(:default, :test)
+Minitest::Reporters.use!(
+  [
+    Minitest::Reporters::DefaultReporter.new(
+      color: true
+    )
+  ]
+)
+
 require "securerandom"
 require "iry"
 

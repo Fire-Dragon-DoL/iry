@@ -14,9 +14,10 @@ group :development do
 end
 
 group :test do
-  gem "pg"
   gem "minitest"
   gem "minitest-power_assert"
+  gem "minitest-reporters"
+  gem "pg"
 end
 
 group :development, :test do

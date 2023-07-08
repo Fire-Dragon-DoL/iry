@@ -2,5 +2,5 @@
 
 set -xe
 exec srb tc
-# TODO: Not functional, can't use gems
+# XXX: Not functional, can't use gems
 # steep check
