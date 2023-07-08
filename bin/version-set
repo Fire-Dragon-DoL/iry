@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+version_number="$(<VERSION)"
+
+echo "Current version: ${version_number}"
+echo
+echo "What's the new version? (default: abort)"
+
+new_version_number=""
+read -r new_version_number
+
+# Empty version number supplied
+if [[ -z "${new_version_number// }" ]]; then
+  echo "Invalid version number \"${new_version_number}\"" >&2
+  exit 1
+fi
+
+# Set version
+printf "%s\n" "$new_version_number" > VERSION
+npm version \
+  --allow-same-version \
+  --no-commit-hooks \
+  --no-git-tag-version \
+  "$new_version_number"
+
+echo "VERSION updated to: \"$(<VERSION)\""
+echo "npm version updated to: \"$(npm run --silent version-get)\""
+
+exit 0
