@@ -19,7 +19,11 @@ module Iry
 
       is_handled = handler.handle(err, model)
 
-      if !is_handled
+      if is_handled
+        # Rolling back allows to keep using SQL in other callbacks, which
+        # otherwise would raise PG::InFailedSqlTransaction
+        raise ActiveRecord::Rollback
+      else
         raise
       end
     end
