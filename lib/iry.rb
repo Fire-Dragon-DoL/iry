@@ -33,7 +33,8 @@ require_relative "iry/constraint/unique"
 #   Iry.save(fail_user)
 #   fail_user.errors.details.fetch(:email) #=> [{error: :taken}]
 module Iry
-  # Included in all exceptions triggered by Iry
+  # Included in all exceptions triggered by Iry, this allows to rescue any
+  # gem-related exception by rescuing {Iry::Error}
   module Error
   end
 
@@ -41,6 +42,11 @@ module Iry
   # model errors
   class ConstraintViolation < ActiveRecord::RecordInvalid
     include Error
+
+    # @!method record
+    #   Inherited from {ActiveRecord::RecordInvalid}, returns the model for
+    #   which the constraint violations have been detected
+    #   @return [Handlers::Model]
   end
 
   # @param klass [Module]
@@ -62,6 +68,19 @@ module Iry
   # @yield block must perform the save operation, usually with `save`
   # @return [nil, Handlers::Model] the `model` or `nil` if a  a constraint is
   #   violated
+  # @example Handle constraints for unique user
+  #   # The database schema has a unique constraint on email field
+  #   class User < ActiveRecord::Base
+  #     include Iry
+  #
+  #     unique_constraint :email
+  #   end
+  #
+  #   user = User.create!(email: "user@example.com")
+  #   fail_user = User.new(email: "user@example.com")
+  #   result = Iry.handle_constraints(fail_user) { fail_user.save }
+  #   result #=> nil
+  #   fail_user.errors.details.fetch(:email) #=> [{error: :taken}]
   def self.handle_constraints(model, &block)
     raise ArgumentError, "Block required" if block.nil?
 
@@ -77,6 +96,7 @@ module Iry
 
     is_handled = handler.handle(err, model)
 
+    # This constraint is not handled by Iry and should raise normally
     if !is_handled
       raise
     end
