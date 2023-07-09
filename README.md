@@ -6,7 +6,7 @@ Convert constraint errors into Rails model validation errors.
 
 ## Documentation
 
-https://rubydoc.info/gems/iry/frames
+https://rubydoc.info/gems/iry
 
 ## Usage
 
@@ -14,7 +14,6 @@ Given the following database schema:
 
 ```sql
 create extension if not exists "pgcrypto";
-create extension if not exists "btree_gist";
 
 create table if not exists users (
     id uuid primary key default gen_random_uuid(),
@@ -24,7 +23,7 @@ create table if not exists users (
 );
 ```
 
-The following constraint can be used on the `User` class:
+Set the following constraint on the `User` class:
 
 ```ruby
 class User < ActiveRecord::Base
@@ -36,14 +35,21 @@ class User < ActiveRecord::Base
 end
 ```
 
+Now one of the saving mechanisms can be used:
+- [`handle_constraints`](#handle_constraints)
+- [`save`](#save)
+- [`save!`](#save!)
+
 When saving a new `User` record or updating it, in case constraint exceptions are raised, these will be rescued and
 validation errors will be applied to the record, like in the following example:
 
 ```ruby
 user = User.create!(unique_text: "some unique text")
+fail_user = User.new(unique_text: "some unique text")
 
-fail_user = User.create(unique_text: "some unique text")
+success = Iry.save(fail_user)
 
+success #=> false
 fail_user.errors.details.fetch(:unique_text) #=> [{error: :taken}]
 ```
 
@@ -62,7 +68,7 @@ The class method `.constraints` is also available, that returns all the constrai
 
 ### [`check_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:check_constraint)
 
-```rbs
+```ruby
 check_constraint(key, name: nil, message: :invalid) ⇒ void
 ```
 
@@ -74,7 +80,7 @@ Catches a specific check constraint violation.
 
 ### [`exclusion_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:exclusion_constraint)
 
-```rbs
+```ruby
 exclusion_constraint(key, name: nil, message: :taken) ⇒ void
 ```
 
@@ -86,7 +92,7 @@ Catches a specific exclusion constraint violation.
 
 ### [`foreign_key_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:foreign_key_constraint)
 
-```rbs
+```ruby
 foreign_key_constraint(key_or_keys, name: nil, message: :required, error_key: nil) ⇒ void
 ```
 
@@ -99,7 +105,7 @@ Catches a specific foreign key constraint violation.
 
 ### [`unique_constraint`](https://rubydoc.info/gems/iry/Iry%2FMacros:unique_constraint)
 
-```rbs
+```ruby
 unique_constraint(key_or_keys, name: nil, message: :taken, error_key: nil) ⇒ void
 ```
 
@@ -110,12 +116,36 @@ Catches a specific foreign key constraint violation.
 - **message** (optional `String` or `Symbol`) error message, defaults to `:taken`
 - **error_key** (optional `Symbol`) which key will have validation errors added to
 
+## Advanced Usage
+
+### [`handle_constraints!`](https://rubydoc.info/gems/iry/Iry.handle_constraints)
+
+```ruby
+.handle_constraints(model) { ... } ⇒ nil, Handlers::Model
+```
+
+Serving as base for `save` and `save!`, it will detects constraint violations, halt the execution of the block, convert
+violations to validation errors and return `nil` when violations are detected, otherwise the model object provided as
+argument.
+
+### [`save`](https://rubydoc.info/gems/iry/Iry.save)
+
+Acts the same as `ActiveRecord::Base#save`, accepting the same arguments and returning the same values.
+In addition, it will return `false` if a constraint violation of the tracked constraints is detected and validation
+errors will be added to `errors`.
+
+### [`save!`](https://rubydoc.info/gems/iry/Iry.save!)
+
+Acts the same as `ActiveRecord::Base#save!`, accepting the same arguments and returning the same values.
+In addition, it will raise `Iry::ConstraintViolation` when constraint violations are detected.
+
 ## Limitations
 
 - `valid?` will not check for constraints. If calling `valid?` right after a `save` operation, keep in mind `errors`
     are cleared
-- `create!` and `update!` will raise `ActiveRecord::RecordNotSaved` for constraints that are caught by `iry`, instead
-    of `ActiveModel::ValidationError`
+- It is recommended to avoid transactions when using `Iry`, because if a violation is detected, anything after
+    `Iry.save/save!/handle_constraints` will result in `ActiveRecord::StatementInvalid`, since the transaction is
+    aborted
 - Currently only PostgreSQL is supported with the `pg` gem, but it should be simple to add support for other databases.
 
 ## Installation

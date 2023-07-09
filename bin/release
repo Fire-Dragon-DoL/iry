@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-FROM_SCRATCH=on ./bin/changelog-build
+./bin/changelog-build
 exec rake release

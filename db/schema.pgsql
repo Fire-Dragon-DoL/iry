@@ -7,6 +7,7 @@ create table if not exists users (
   exclude_text text not null default gen_random_uuid()::text,
 	user_id uuid references users (id),
   untracked_text text unique not null default gen_random_uuid()::text,
+  free_text text not null default '',
 	friend_user_id uuid references users (id),
 	created_at timestamp(6) not null,
 	updated_at timestamp(6) not null,

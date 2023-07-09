@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
   foreign_key_constraint :user_id
   foreign_key_constraint :friend_user_id, error_key: :friend_user
 
-  validates :unique_text, allow_blank: true, format: {with: /\A(?:-|[a-zA-Z0-9])*\z/}
+  validates :free_text, allow_blank: true, format: {with: /\A(?:-|[a-zA-Z0-9])*\z/}
 
   after_save :retrieve_user
 

@@ -16,14 +16,77 @@
 #   end
 # 
 #   user = User.create!(email: "user@example.com")
-#   fail_user = User.create(email: "user@example.com")
+#   fail_user = User.new(email: "user@example.com")
+#   Iry.save(fail_user)
 #   fail_user.errors.details.fetch(:email) #=> [{error: :taken}]
 module Iry
   VERSION = T.let(File.read(File.expand_path("../../VERSION", __dir__)).strip.freeze, T.untyped)
 
+  # Inherited from {ActiveRecord::RecordInvalid}, returns the model for
+  # which the constraint violations have been detected
+  sig { returns(Handlers::Model) }
+  def record; end
+
   # _@param_ `klass`
   sig { params(klass: Module).void }
   def self.included(klass); end
+
+  # Executes block and in case of constraints violations on `model`, block is
+  # halted and errors are appended to `model`
+  # 
+  # _@param_ `model` — model object for which constraints should be monitored and for which errors should be added to
+  # 
+  # _@return_ — the `model` or `nil` if a  a constraint is
+  # violated
+  # 
+  # Handle constraints for unique user
+  # ```ruby
+  # # The database schema has a unique constraint on email field
+  # class User < ActiveRecord::Base
+  #   include Iry
+  # 
+  #   unique_constraint :email
+  # end
+  # 
+  # user = User.create!(email: "user@example.com")
+  # fail_user = User.new(email: "user@example.com")
+  # result = Iry.handle_constraints(fail_user) { fail_user.save }
+  # result #=> nil
+  # fail_user.errors.details.fetch(:email) #=> [{error: :taken}]
+  # ```
+  sig { params(model: Handlers::Model, block: T.untyped).void }
+  def self.handle_constraints(model, &block); end
+
+  # Similar to {ActiveRecord::Base#save} but in case of constraint violations,
+  # `false` is returned and `errors` are populated.
+  # Aside from `model`, it takes the same arguments as
+  # {ActiveRecord::Base#save}
+  # 
+  # _@param_ `model` — model to save
+  # 
+  # _@return_ — `true` if successful
+  sig { params(model: Handlers::Model).returns(T::Boolean) }
+  def self.save(model); end
+
+  # Similar to {ActiveRecord::Base#save!} but in case of constraint violations,
+  # it raises {ConstraintViolation} and `errors` are populated.
+  # Aside from `model`, it takes the same arguments as
+  # {ActiveRecord::Base#save!}
+  # 
+  # _@param_ `model` — model to save
+  sig { params(model: Handlers::Model).returns(T::Boolean) }
+  def self.save!(model); end
+
+  # Included in all exceptions triggered by Iry, this allows to rescue any
+  # gem-related exception by rescuing {Iry::Error}
+  module Error
+  end
+
+  # Raised when constraints have been violated and have been converted to
+  # model errors
+  class ConstraintViolation < ActiveRecord::RecordInvalid
+    include Iry::Error
+  end
 
   # Class-level methods available to classes executing `include Iry`
   module Macros
