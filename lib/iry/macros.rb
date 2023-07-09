@@ -1,11 +1,9 @@
 module Iry
   # Class-level methods available to classes executing `include Iry`
   module Macros
-    # Constraints by name
-    # @return [{String => Constraint}]
-    def constraints
-      @constraints ||= {}
-    end
+    # @!method constraints
+    #   Constraints by name
+    #   @return [{String => Constraint}]
 
     # Tracks check constraint for the given key and convert constraint errors into validation errors
     # @param key [Symbol] key to apply validation errors to
