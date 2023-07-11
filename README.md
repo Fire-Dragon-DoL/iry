@@ -39,6 +39,7 @@ Now one of the saving mechanisms can be used:
 - [`handle_constraints`](#handle_constraints)
 - [`save`](#save)
 - [`save!`](#save!)
+- [`destroy`](#destroy)
 
 When saving a new `User` record or updating it, in case constraint exceptions are raised, these will be rescued and
 validation errors will be applied to the record, like in the following example:
@@ -138,6 +139,12 @@ errors will be added to `errors`.
 
 Acts the same as `ActiveRecord::Base#save!`, accepting the same arguments and returning the same values.
 In addition, it will raise `Iry::ConstraintViolation` when constraint violations are detected.
+
+### [`destroy`](https://rubydoc.info/gems/iry/Iry.destroy)
+
+Acts the same as `ActiveRecord::Base#destroy`.
+In addition, it will return `false` if a constraint violation of the tracked constraints is detected and validation
+errors will be added to `errors`.
 
 ## Limitations
 

@@ -1,1 +1,1 @@
---no-private 'lib/**/*.rb' - 'README.md' 'CHANGELOG.md' VERSION LICENSE '.envrc.example' Gemfile 'Gemfile.lock' 'db/schema.pgsql' 'iry.gemspec'
+--no-private 'lib/**/*.rb' - 'README.md' VERSION LICENSE '.envrc.example' Gemfile 'Gemfile.lock' 'db/schema.pgsql' 'iry.gemspec'
