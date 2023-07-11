@@ -2,7 +2,12 @@ class User < ActiveRecord::Base
   include Iry
 
   belongs_to :user, optional: true
-  belongs_to :friend_user, optional: true
+  belongs_to(
+    :friend_user,
+    optional: true,
+    class_name: "User",
+    foreign_key: "friend_user_id"
+  )
 
   has_many(
     :friend_users,
@@ -16,7 +21,7 @@ class User < ActiveRecord::Base
   check_constraint :unique_text
   exclusion_constraint :exclude_text
   foreign_key_constraint :user_id
-  foreign_key_constraint :friend_user_id, error_key: :friend_user
+  foreign_key_constraint :friend_user_id, error_key: :friend_user, name: "users_friend_user_id_fkey"
 
   validates :free_text, allow_blank: true, format: {with: /\A(?:-|[a-zA-Z0-9])*\z/}
 

@@ -159,4 +159,18 @@ module Iry
 
     raise ConstraintViolation.new(model)
   end
+
+  # Similar to {ActiveRecord::Base#destroy} but in case of constraint
+  # violations, `false` is returned and `errors` are populated.
+  # @param model [Handlers::Model] model to destroy
+  # @return [Handlers::Model] the destroyed model
+  def self.destroy(model)
+    constraint_result = handle_constraints(model) { model.destroy }
+
+    if constraint_result.nil?
+      return false
+    end
+
+    return constraint_result
+  end
 end

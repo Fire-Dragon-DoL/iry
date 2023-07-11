@@ -13,7 +13,7 @@ module Iry
           exclusion\sconstraint|
           foreign\skey\sconstraint
         )
-        \s"(.+)"
+        \s"([^"]+)"
       }x
 
       # When true, the handler is able to handle this exception, representing a constraint error in PostgreSQL.
