@@ -6,7 +6,7 @@ module Iry
     # Sets validation errors on the model
     # @abstract
     # @param model [Handlers::Model]
-    # @return [void]
+    # @return [ActiveModel::Error]
     def apply(model)
     end
 

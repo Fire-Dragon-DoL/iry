@@ -6,7 +6,7 @@ module Iry
     # @return [Boolean] true if successful
     def create_or_update(...)
       result = false
-      Iry.handle_constraints!(self) { result = super }
+      TransformConstraints.nested_constraints!(self) { result = super }
       result
     end
   end

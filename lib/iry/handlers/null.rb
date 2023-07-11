@@ -15,9 +15,9 @@ module Iry
       # Return always false, failing to handle any constraint
       # @param err [ActiveRecord::StatementInvalid]
       # @param model [Model] should inherit {ActiveRecord::Base} and`include Iry` to match the interface
-      # @return [Boolean]
+      # @return [nil, ActiveModel::Error]
       def handle(err, model)
-        return false
+        return nil
       end
     end
   end

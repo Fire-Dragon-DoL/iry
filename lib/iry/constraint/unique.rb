@@ -35,7 +35,7 @@ module Iry
       end
 
       # @param model [Handlers::Model]
-      # @return [void]
+      # @return [ActiveModel::Error]
       def apply(model)
         model.errors.add(error_key, message)
       end

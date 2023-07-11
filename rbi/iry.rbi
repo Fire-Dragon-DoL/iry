@@ -57,6 +57,15 @@ module Iry
   sig { params(model: Handlers::Model, block: T.untyped).void }
   def self.handle_constraints(model, &block); end
 
+  # Executes block and in case of constraints violations on `model`, block is
+  # halted, errors are appended to `model` and {StatementInvalid} is raised
+  # 
+  # _@param_ `model` — model object for which constraints should be monitored and for which errors should be added to
+  # 
+  # _@return_ — returns `model` parameter
+  sig { params(model: Handlers::Model, block: T.untyped).returns(Handlers::Model) }
+  def self.handle_constraints!(model, &block); end
+
   # Similar to {ActiveRecord::Base#save} but in case of constraint violations,
   # `false` is returned and `errors` are populated.
   # Aside from `model`, it takes the same arguments as
@@ -77,15 +86,69 @@ module Iry
   sig { params(model: Handlers::Model).returns(T::Boolean) }
   def self.save!(model); end
 
+  # Similar to {ActiveRecord::Base#destroy} but in case of constraint
+  # violations, `false` is returned and `errors` are populated.
+  # 
+  # _@param_ `model` — model to destroy
+  # 
+  # _@return_ — the destroyed model
+  sig { params(model: Handlers::Model).returns(Handlers::Model) }
+  def self.destroy(model); end
+
   # Included in all exceptions triggered by Iry, this allows to rescue any
   # gem-related exception by rescuing {Iry::Error}
   module Error
   end
 
   # Raised when constraints have been violated and have been converted to
-  # model errors
+  # model errors, on {ActiveRecord::Base#save!} calls, to simulate a behavior
+  # similar to {ActiveRecord::RecordInvalid} when it's raised
   class ConstraintViolation < ActiveRecord::RecordInvalid
     include Iry::Error
+  end
+
+  # Raised when constraints errors happen and go through Iry, even if these
+  # are not handled. This class inherits from {ActiveRecord::StatementInvalid}
+  # to maximize compatibility with existing code
+  class StatementInvalid < ActiveRecord::StatementInvalid
+    include Iry::Error
+
+    # sord warn - ActiveModel::Error wasn't able to be resolved to a constant in this project
+    # sord omit - no YARD type given for "**kwargs", using untyped
+    # _@param_ `message`
+    # 
+    # _@param_ `record`
+    # 
+    # _@param_ `error`
+    sig do
+      params(
+        message: T.nilable(String),
+        record: Handlers::Model,
+        error: ActiveModel::Error,
+        kwargs: T.untyped
+      ).void
+    end
+    def initialize(message = nil, record:, error:, **kwargs); end
+
+    # _@return_ — model affected by the constraint violation
+    sig { returns(Handlers::Model) }
+    attr_reader :record
+
+    # sord warn - ActiveModel::Error wasn't able to be resolved to a constant in this project
+    # _@return_ — error attached to the `record` for the
+    # constraint violation
+    sig { returns(ActiveModel::Error) }
+    attr_reader :error
+  end
+
+  # Overrides private API method {ActiveRecord#create_or_update} to handle
+  # constraints and attach errors to the including model
+  module Patch
+    # Takes attributes as named arguments
+    # 
+    # _@return_ — true if successful
+    sig { returns(T::Boolean) }
+    def create_or_update; end
   end
 
   # Class-level methods available to classes executing `include Iry`
@@ -169,8 +232,9 @@ module Iry
       # 
       # _@param_ `model`
       # 
-      # _@return_ — true if this database handler handled the constraint error
-      sig { params(err: ActiveRecord::StatementInvalid, model: Model).returns(T::Boolean) }
+      # _@return_ — `nil` if couldn't handle the error,
+      # otherwise the {ActiveModel::Error} added to the model
+      sig { params(err: ActiveRecord::StatementInvalid, model: Model).void }
       def handle(err, model); end
     end
 
@@ -207,7 +271,7 @@ module Iry
     exclusion\sconstraint|
     foreign\skey\sconstraint
   )
-  \s"(.+)"
+  \s"([^"]+)"
 }x, T.untyped)
 
       # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
@@ -225,6 +289,10 @@ module Iry
       # _@param_ `err`
       # 
       # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
+      # 
+      # _@return_ — if handled constraint, returns the
+      # error attached to the model. If constraint wasn't handled or handling
+      # failed, `nil` is returned
       sig { params(err: ActiveRecord::StatementInvalid, model: Model).void }
       def handle(err, model); end
 
@@ -243,6 +311,10 @@ module Iry
       # _@param_ `err`
       # 
       # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
+      # 
+      # _@return_ — if handled constraint, returns the
+      # error attached to the model. If constraint wasn't handled or handling
+      # failed, `nil` is returned
       sig { params(err: ActiveRecord::StatementInvalid, model: Model).void }
       def self.handle(err, model); end
     end
@@ -265,7 +337,7 @@ module Iry
       # _@param_ `err`
       # 
       # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
-      sig { params(err: ActiveRecord::StatementInvalid, model: Model).returns(T::Boolean) }
+      sig { params(err: ActiveRecord::StatementInvalid, model: Model).void }
       def handle(err, model); end
 
       # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
@@ -281,7 +353,7 @@ module Iry
       # _@param_ `err`
       # 
       # _@param_ `model` — should inherit {ActiveRecord::Base} and`include Iry` to match the interface
-      sig { params(err: ActiveRecord::StatementInvalid, model: Model).returns(T::Boolean) }
+      sig { params(err: ActiveRecord::StatementInvalid, model: Model).void }
       def self.handle(err, model); end
     end
   end
@@ -305,10 +377,11 @@ module Iry
   # A constraint has a name and can apply errors to an object inheriting from {ActiveRecord::Base}
   # @abstract
   module Constraint
+    # sord warn - ActiveModel::Error wasn't able to be resolved to a constant in this project
     # Sets validation errors on the model
     # 
     # _@param_ `model`
-    sig { params(model: Handlers::Model).void }
+    sig { params(model: Handlers::Model).returns(ActiveModel::Error) }
     def apply(model); end
 
     # Name of the constraint to be caught from the database
@@ -337,8 +410,9 @@ module Iry
       sig { params(key: Symbol, name: String, message: T.any(Symbol, String)).void }
       def initialize(key, name:, message: :invalid); end
 
+      # sord warn - ActiveModel::Error wasn't able to be resolved to a constant in this project
       # _@param_ `model`
-      sig { params(model: Handlers::Model).void }
+      sig { params(model: Handlers::Model).returns(ActiveModel::Error) }
       def apply(model); end
 
       sig { returns(Symbol) }
@@ -377,8 +451,9 @@ module Iry
       end
       def initialize(keys, name:, error_key:, message: :taken); end
 
+      # sord warn - ActiveModel::Error wasn't able to be resolved to a constant in this project
       # _@param_ `model`
-      sig { params(model: Handlers::Model).void }
+      sig { params(model: Handlers::Model).returns(ActiveModel::Error) }
       def apply(model); end
 
       sig { returns(T::Array[Symbol]) }
@@ -411,8 +486,9 @@ module Iry
       sig { params(key: Symbol, name: String, message: T.any(Symbol, String)).void }
       def initialize(key, name:, message: :taken); end
 
+      # sord warn - ActiveModel::Error wasn't able to be resolved to a constant in this project
       # _@param_ `model`
-      sig { params(model: Handlers::Model).void }
+      sig { params(model: Handlers::Model).returns(ActiveModel::Error) }
       def apply(model); end
 
       sig { returns(Symbol) }
@@ -451,8 +527,9 @@ module Iry
       end
       def initialize(keys, name:, error_key:, message: :required); end
 
+      # sord warn - ActiveModel::Error wasn't able to be resolved to a constant in this project
       # _@param_ `model`
-      sig { params(model: Handlers::Model).void }
+      sig { params(model: Handlers::Model).returns(ActiveModel::Error) }
       def apply(model); end
 
       sig { returns(T::Array[Symbol]) }
@@ -467,5 +544,67 @@ module Iry
       sig { returns(Symbol) }
       attr_accessor :error_key
     end
+  end
+
+  # Implementation of {Iry} methods, helps ensuring the main module focus on
+  # documentation
+  module TransformConstraints
+    extend Iry::TransformConstraints
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model, block: T.untyped).void }
+    def handle_constraints(model, &block); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model, block: T.untyped).returns(Handlers::Model) }
+    def handle_constraints!(model, &block); end
+
+    # Tracks constraints of models saved as a consequence of saving another
+    # model. This usually represents a situation of model using
+    # `accepts_nested_attributes_for`
+    # 
+    # _@param_ `model`
+    sig { params(model: Handlers::Model, block: T.untyped).returns(Handlers::Model) }
+    def nested_constraints!(model, &block); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model).returns(T::Boolean) }
+    def save(model); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model).returns(T::Boolean) }
+    def save!(model); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model).returns(Handlers::Model) }
+    def destroy(model); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model, block: T.untyped).void }
+    def self.handle_constraints(model, &block); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model, block: T.untyped).returns(Handlers::Model) }
+    def self.handle_constraints!(model, &block); end
+
+    # Tracks constraints of models saved as a consequence of saving another
+    # model. This usually represents a situation of model using
+    # `accepts_nested_attributes_for`
+    # 
+    # _@param_ `model`
+    sig { params(model: Handlers::Model, block: T.untyped).returns(Handlers::Model) }
+    def self.nested_constraints!(model, &block); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model).returns(T::Boolean) }
+    def self.save(model); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model).returns(T::Boolean) }
+    def self.save!(model); end
+
+    # _@param_ `model`
+    sig { params(model: Handlers::Model).returns(Handlers::Model) }
+    def self.destroy(model); end
   end
 end

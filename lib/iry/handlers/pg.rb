@@ -36,7 +36,9 @@ module Iry
       # Appends constraint errors as model errors
       # @param err [ActiveRecord::StatementInvalid]
       # @param model [Model] should inherit {ActiveRecord::Base} and`include Iry` to match the interface
-      # @return [void]
+      # @return [nil, ActiveModel::Error] if handled constraint, returns the
+      #   error attached to the model. If constraint wasn't handled or handling
+      #   failed, `nil` is returned
       def handle(err, model)
         pgerr = err.cause
         constraint_name_msg = pgerr.result.error_field(::PG::Constants::PG_DIAG_MESSAGE_PRIMARY)
@@ -44,12 +46,10 @@ module Iry
         constraint_name = match[1]
         constraint = model.class.constraints[constraint_name]
         if constraint.nil?
-          return false
+          return nil
         end
 
-        constraint.apply(model)
-
-        return true
+        return constraint.apply(model)
       end
     end
   end

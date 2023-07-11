@@ -33,6 +33,25 @@ class SaveTest < Minitest::Test
     refute { other_user.persisted? }
   end
 
+  def test_normal_transaction_halted
+    user = User.create!(unique_text: SecureRandom.uuid)
+    fail_user = User.new(unique_text: user.unique_text)
+    other_user = User.new(unique_text: SecureRandom.uuid)
+    unique_err_raised = false
+
+    begin
+      User.transaction do
+        fail_user.save
+        other_user.save
+      end
+    rescue ActiveRecord::RecordNotUnique
+      unique_err_raised = true
+    end
+
+    assert { unique_err_raised == true }
+    refute { other_user.persisted? }
+  end
+
   def test_true_on_success
     user = User.new(unique_text: SecureRandom.uuid)
 

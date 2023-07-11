@@ -12,6 +12,7 @@ require_relative "iry/constraint/exclusion"
 require_relative "iry/constraint/foreign_key"
 require_relative "iry/constraint/unique"
 require_relative "iry/patch"
+require_relative "iry/transform_constraints"
 
 # Entrypoint of constraint validation, include in a class inheriting {ActiveRecord::Base} and the following class-level
 # methods will be available:
@@ -40,7 +41,8 @@ module Iry
   end
 
   # Raised when constraints have been violated and have been converted to
-  # model errors
+  # model errors, on {ActiveRecord::Base#save!} calls, to simulate a behavior
+  # similar to {ActiveRecord::RecordInvalid} when it's raised
   class ConstraintViolation < ActiveRecord::RecordInvalid
     include Error
 
@@ -50,8 +52,26 @@ module Iry
     #   @return [Handlers::Model]
   end
 
+  # Raised when constraints errors happen and go through Iry, even if these
+  # are not handled. This class inherits from {ActiveRecord::StatementInvalid}
+  # to maximize compatibility with existing code
   class StatementInvalid < ActiveRecord::StatementInvalid
     include Error
+
+    # @return [Handlers::Model] model affected by the constraint violation
+    attr_reader :record
+    # @return [ActiveModel::Error] error attached to the `record` for the
+    #   constraint violation
+    attr_reader :error
+
+    # @param message [nil, String]
+    # @param record [Handlers::Model]
+    # @param error [ActiveModel::Error]
+    def initialize(message = nil, record:, error:, **kwargs)
+      @record = record
+      @error = error
+      super(message, **kwargs)
+    end
   end
 
   # @param klass [Module]
@@ -88,9 +108,7 @@ module Iry
   #   result #=> nil
   #   fail_user.errors.details.fetch(:email) #=> [{error: :taken}]
   def self.handle_constraints(model, &block)
-    handle_constraints!(model, &block)
-  rescue StatementInvalid
-    return nil
+    TransformConstraints.handle_constraints(model, &block)
   end
 
   # Executes block and in case of constraints violations on `model`, block is
@@ -100,26 +118,7 @@ module Iry
   # @yield block must perform the save operation, usually with `save`
   # @return [Handlers::Model] returns `model` parameter
   def self.handle_constraints!(model, &block)
-    raise ArgumentError, "Block required" if block.nil?
-
-    block.()
-
-    return model
-  rescue ActiveRecord::StatementInvalid => err
-    handler = Handlers::Null
-    case
-    when Handlers::PG.handle?(err)
-      handler = Handlers::PG
-    end
-
-    is_handled = handler.handle(err, model)
-
-    # This constraint is not handled by Iry and should raise normally
-    if !is_handled
-      raise
-    end
-
-    raise StatementInvalid.new(err.message, sql: err.sql, binds: err.binds)
+    TransformConstraints.handle_constraints!(model, &block)
   end
 
   # Similar to {ActiveRecord::Base#save} but in case of constraint violations,
@@ -129,14 +128,7 @@ module Iry
   # @param model [Handlers::Model] model to save
   # @return [Boolean] `true` if successful
   def self.save(model, ...)
-    success = nil
-    constraint_model = handle_constraints(model) { success = model.save(...) }
-
-    if constraint_model
-      return success
-    end
-
-    return false
+    TransformConstraints.save(model, ...)
   end
 
   # Similar to {ActiveRecord::Base#save!} but in case of constraint violations,
@@ -151,13 +143,7 @@ module Iry
   # @raise [ActiveRecord::RecordInvalid] triggered when a validation error is
   #   raised, but not a constraint violation
   def self.save!(model, ...)
-    constraint_model = handle_constraints(model) { model.save!(...) }
-
-    if constraint_model
-      return true
-    end
-
-    raise ConstraintViolation.new(model)
+    TransformConstraints.save!(model, ...)
   end
 
   # Similar to {ActiveRecord::Base#destroy} but in case of constraint
@@ -165,12 +151,6 @@ module Iry
   # @param model [Handlers::Model] model to destroy
   # @return [Handlers::Model] the destroyed model
   def self.destroy(model)
-    constraint_result = handle_constraints(model) { model.destroy }
-
-    if constraint_result.nil?
-      return false
-    end
-
-    return constraint_result
+    TransformConstraints.destroy(model)
   end
 end

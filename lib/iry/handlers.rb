@@ -12,7 +12,8 @@ module Iry
       # @abstract
       # @param err [ActiveRecord::StatementInvalid] possible constraint error to handle
       # @param model [Model]
-      # @return [Boolean] true if this database handler handled the constraint error
+      # @return [nil, ActiveModel::Error] `nil` if couldn't handle the error,
+      #   otherwise the {ActiveModel::Error} added to the model
       def handle(err, model)
       end
     end
