@@ -11,6 +11,7 @@ require_relative "iry/constraint/check"
 require_relative "iry/constraint/exclusion"
 require_relative "iry/constraint/foreign_key"
 require_relative "iry/constraint/unique"
+require_relative "iry/patch"
 
 # Entrypoint of constraint validation, include in a class inheriting {ActiveRecord::Base} and the following class-level
 # methods will be available:
@@ -49,6 +50,10 @@ module Iry
     #   @return [Handlers::Model]
   end
 
+  class StatementInvalid < ActiveRecord::StatementInvalid
+    include Error
+  end
+
   # @param klass [Module]
   # @return [void]
   # @private
@@ -58,6 +63,7 @@ module Iry
       class_attribute(:constraints)
       self.constraints = {}
       extend(Iry::Macros)
+      include(Iry::Patch)
     end
   end
 
@@ -82,6 +88,18 @@ module Iry
   #   result #=> nil
   #   fail_user.errors.details.fetch(:email) #=> [{error: :taken}]
   def self.handle_constraints(model, &block)
+    handle_constraints!(model, &block)
+  rescue StatementInvalid
+    return nil
+  end
+
+  # Executes block and in case of constraints violations on `model`, block is
+  # halted, errors are appended to `model` and {StatementInvalid} is raised
+  # @param model [Handlers::Model] model object for which constraints should be
+  #   monitored and for which errors should be added to
+  # @yield block must perform the save operation, usually with `save`
+  # @return [Handlers::Model] returns `model` parameter
+  def self.handle_constraints!(model, &block)
     raise ArgumentError, "Block required" if block.nil?
 
     block.()
@@ -101,7 +119,7 @@ module Iry
       raise
     end
 
-    return nil
+    raise StatementInvalid.new(err.message, sql: err.sql, binds: err.binds)
   end
 
   # Similar to {ActiveRecord::Base#save} but in case of constraint violations,

@@ -4,6 +4,14 @@ class User < ActiveRecord::Base
   belongs_to :user, optional: true
   belongs_to :friend_user, optional: true
 
+  has_many(
+    :friend_users,
+    class_name: "User",
+    foreign_key: "friend_user_id"
+  )
+
+  accepts_nested_attributes_for :friend_users
+
   unique_constraint :unique_text
   check_constraint :unique_text
   exclusion_constraint :exclude_text
