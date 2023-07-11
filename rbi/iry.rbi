@@ -57,6 +57,15 @@ module Iry
   sig { params(model: Handlers::Model, block: T.untyped).void }
   def self.handle_constraints(model, &block); end
 
+  # Executes block and in case of constraints violations on `model`, block is
+  # halted, errors are appended to `model` and {StatementInvalid} is raised
+  # 
+  # _@param_ `model` — model object for which constraints should be monitored and for which errors should be added to
+  # 
+  # _@return_ — returns `model` parameter
+  sig { params(model: Handlers::Model, block: T.untyped).returns(Handlers::Model) }
+  def self.handle_constraints!(model, &block); end
+
   # Similar to {ActiveRecord::Base#save} but in case of constraint violations,
   # `false` is returned and `errors` are populated.
   # Aside from `model`, it takes the same arguments as
@@ -77,6 +86,15 @@ module Iry
   sig { params(model: Handlers::Model).returns(T::Boolean) }
   def self.save!(model); end
 
+  # Similar to {ActiveRecord::Base#destroy} but in case of constraint
+  # violations, `false` is returned and `errors` are populated.
+  # 
+  # _@param_ `model` — model to destroy
+  # 
+  # _@return_ — the destroyed model
+  sig { params(model: Handlers::Model).returns(Handlers::Model) }
+  def self.destroy(model); end
+
   # Included in all exceptions triggered by Iry, this allows to rescue any
   # gem-related exception by rescuing {Iry::Error}
   module Error
@@ -86,6 +104,20 @@ module Iry
   # model errors
   class ConstraintViolation < ActiveRecord::RecordInvalid
     include Iry::Error
+  end
+
+  class StatementInvalid < ActiveRecord::StatementInvalid
+    include Iry::Error
+  end
+
+  # Overrides private API method {ActiveRecord#create_or_update} to handle
+  # constraints and attach errors to the including model
+  module Patch
+    # Takes attributes as named arguments
+    # 
+    # _@return_ — true if successful
+    sig { returns(T::Boolean) }
+    def create_or_update; end
   end
 
   # Class-level methods available to classes executing `include Iry`
@@ -207,7 +239,7 @@ module Iry
     exclusion\sconstraint|
     foreign\skey\sconstraint
   )
-  \s"(.+)"
+  \s"([^"]+)"
 }x, T.untyped)
 
       # sord warn - ActiveRecord::StatementInvalid wasn't able to be resolved to a constant in this project
