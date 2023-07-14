@@ -22,6 +22,7 @@ module Iry
         raise ArgumentError, "Constraint already exists"
       end
 
+      self.constraints = constraints.dup
       constraints[name] = Constraint::Check.new(
         key,
         message: message,
@@ -46,6 +47,7 @@ module Iry
         raise ArgumentError, "Constraint already exists"
       end
 
+      self.constraints = constraints.dup
       constraints[name] = Constraint::Exclusion.new(
         key,
         message: message,
@@ -75,6 +77,7 @@ module Iry
         raise ArgumentError, "Constraint already exists"
       end
 
+      self.constraints = constraints.dup
       constraints[name] = Constraint::ForeignKey.new(
         keys,
         message: message,
@@ -105,6 +108,7 @@ module Iry
         raise ArgumentError, "Constraint already exists"
       end
 
+      self.constraints = constraints.dup
       constraints[name] = Constraint::Unique.new(
         keys,
         message: message,
