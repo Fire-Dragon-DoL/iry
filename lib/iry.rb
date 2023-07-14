@@ -81,8 +81,7 @@ module Iry
   def self.included(klass)
     klass.class_eval do
       # From activesupport
-      class_attribute(:constraints)
-      self.constraints = {}
+      class_attribute(:constraints, default: {})
       extend(Iry::Macros)
       include(Iry::Patch)
     end

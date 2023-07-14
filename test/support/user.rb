@@ -1,6 +1,4 @@
-class User < ActiveRecord::Base
-  include Iry
-
+class User < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to(
     :friend_user,

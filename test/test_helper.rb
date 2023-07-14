@@ -9,6 +9,7 @@ Minitest::Reporters.use!(
 )
 
 require "securerandom"
+require "set"
 require "iry"
 
 ActiveRecord::Base.establish_connection(
@@ -20,4 +21,7 @@ ActiveRecord::Base.establish_connection(
   }
 )
 
+require_relative "support/application_record"
+require_relative "support/other_user"
+require_relative "support/inheriting_user"
 require_relative "support/user"
