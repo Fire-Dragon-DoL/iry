@@ -6,7 +6,13 @@ module Iry
       # @param table_name [String]
       # @return [String]
       def self.infer_name(key, table_name)
-        "#{table_name}_#{key}_check"
+        # PostgreSQL convention:
+        # "#{table_name}_#{key}_check"
+        # Rails convention
+        id = "#{table_name}_#{key}_chk"
+        hashed_id = OpenSSL::Digest::SHA256.hexdigest(id)[0..9]
+
+        "chk_rails_#{hashed_id}"
       end
 
       # @return [Symbol]

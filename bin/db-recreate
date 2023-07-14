@@ -8,6 +8,9 @@ dropdb iry_test
 createdb iry_development
 createdb iry_test
 
+set +x
+
+# Exit on any error
 set -e
 
 echo "=== development ==="

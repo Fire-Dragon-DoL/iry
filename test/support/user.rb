@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
   check_constraint :unique_text
   exclusion_constraint :exclude_text
   foreign_key_constraint :user_id
-  foreign_key_constraint :friend_user_id, error_key: :friend_user, name: "users_friend_user_id_fkey"
+  foreign_key_constraint :friend_user_id, error_key: :friend_user
 
   validates :free_text, allow_blank: true, format: {with: /\A(?:-|[a-zA-Z0-9])*\z/}
 

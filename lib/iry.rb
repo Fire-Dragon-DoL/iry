@@ -1,4 +1,5 @@
 require "active_record"
+require "openssl"
 
 require_relative "iry/version"
 require_relative "iry/handlers"

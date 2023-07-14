@@ -6,7 +6,17 @@ module Iry
       # @param table_name [String]
       # @return [String]
       def self.infer_name(keys, table_name)
-        "#{table_name}_#{keys.join("_")}_fkey"
+        if keys.size > 1
+          # PostgreSQL convention:
+          return "#{table_name}_#{keys.join("_")}_fkey"
+        end
+
+        # Rails convention:
+        column = keys.first
+        id = "#{table_name}_#{column}_fk"
+        hashed_id = OpenSSL::Digest::SHA256.hexdigest(id)[0..9]
+
+        "fk_rails_#{hashed_id}"
       end
 
       # @return [<Symbol>]
