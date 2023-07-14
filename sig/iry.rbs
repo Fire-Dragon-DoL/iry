@@ -370,6 +370,8 @@ module Iry
     end
 
     class Unique
+      MAX_INFER_NAME_BYTE_SIZE: untyped
+
       # Infers the unique constraint name based on keys and table name
       # 
       # _@param_ `keys`

@@ -1,12 +1,32 @@
 module Iry
   module Constraint
     class Unique
+      MAX_INFER_NAME_BYTE_SIZE = 62
+
       # Infers the unique constraint name based on keys and table name
       # @param keys [<Symbol>]
       # @param table_name [String]
       # @return [String]
       def self.infer_name(keys, table_name)
-        "#{table_name}_#{keys.join("_")}_key"
+        # PostgreSQL convention:
+        # "#{table_name}_#{keys.join("_")}_key"
+
+        # Rails convention:
+        # index_trip_hikers_on_trip_id_and_hiker_card_id
+        # index_TABLENAME_on_COLUMN1_and_COLUMN2
+        name = "index_#{table_name}_on_#{keys.join("_and_")}"
+        if name.bytesize <= MAX_INFER_NAME_BYTE_SIZE
+          return name
+        end
+
+        digest = OpenSSL::Digest::SHA256.hexdigest(name)[0..9]
+        hashed_id = "_#{digest}"
+        name = "idx_on_#{keys.join("_")}"
+
+        short_limit = max_index_name_size - hashed_identifier.bytesize
+        short_name = name.mb_chars.limit(short_limit).to_s
+
+        "#{short_name}#{hashed_identifier}"
       end
 
       # @return [<Symbol>]
