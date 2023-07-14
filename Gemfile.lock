@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    iry (0.7.0)
+    iry (0.7.1)
       activerecord (>= 3)
 
 GEM
