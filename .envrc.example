@@ -4,3 +4,4 @@ export PGDATABASE=iry_development
 export PGHOST=localhost
 export PGPORT=5432
 export PGUSER=postgres
+export PATH="$PWD/exe:$PATH"

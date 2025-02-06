@@ -7,5 +7,7 @@ set -vxe
 
 bundle install
 npm install
+bundle binstubs --all --path exe
+export PATH="$PWD/exe:$PATH"
 ./bin/db-recreate
 ./bin/types-build

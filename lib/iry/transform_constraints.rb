@@ -77,6 +77,8 @@ module Iry
       case
       when Handlers::PG.handle?(err)
         handler = Handlers::PG
+      when Handlers::Sqlite.handle?(err)
+        handler = Handlers::Sqlite
       end
 
       model_error = handler.handle(err, model)

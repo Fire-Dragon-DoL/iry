@@ -36,4 +36,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency("minitest")
   spec.add_development_dependency("minitest-power_assert")
   spec.add_development_dependency("rake", ">= 13")
+  spec.add_development_dependency("sqlite3", ">= 2.1")
 end

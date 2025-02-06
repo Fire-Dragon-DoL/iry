@@ -20,3 +20,8 @@ echo
 echo "=== test ==="
 psql --db iry_test < db/schema.pgsql
 echo
+
+echo "SQLITE"
+mkdir -p storage
+rm -f storage/test.sqlite3
+sqlite3 storage/test.sqlite3 < db/schema-sqlite.sql
