@@ -14,10 +14,12 @@ group :development do
 end
 
 group :test do
+  gem "mutex_m" # remove once minitest adds this
   gem "minitest"
   gem "minitest-power_assert"
   gem "minitest-reporters"
   gem "pg"
+  gem "sqlite3"
 end
 
 group :development, :test do
