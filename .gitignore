@@ -10,3 +10,4 @@
 /binstubs
 /sorbet/rbi/
 /node_modules
+/exe
