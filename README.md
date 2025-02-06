@@ -58,10 +58,23 @@ Multiple constraints of the same or different types can be present on the model,
 
 The following constraint types are available:
 
-- [`check_constraint`](#check_constraint)
-- [`exclusion_constraint`](#exclusion_constraint)
-- [`foreign_key_constraint`](#foreign_key_constraint)
-- [`unique_constraint`](#unique_constraint)
+- [Iry](#iry)
+  - [Documentation](#documentation)
+  - [Usage](#usage)
+  - [Constraints](#constraints)
+    - [`check_constraint`](#check_constraint)
+    - [`exclusion_constraint`](#exclusion_constraint)
+    - [`foreign_key_constraint`](#foreign_key_constraint)
+    - [`unique_constraint`](#unique_constraint)
+  - [Advanced Usage](#advanced-usage)
+    - [`handle_constraints!`](#handle_constraints)
+    - [`save`](#save)
+    - [`save!`](#save-1)
+    - [`destroy`](#destroy)
+  - [Limitations](#limitations)
+  - [Installation](#installation)
+  - [Development](#development)
+  - [Contributing](#contributing)
 
 The class method `.constraints` is also available, that returns all the constraints applied to a model.
 
@@ -153,7 +166,8 @@ errors will be added to `errors`.
 - It is recommended to avoid transactions when using `Iry`, because if a violation is detected, anything after
     `Iry.save/save!/handle_constraints` will result in `ActiveRecord::StatementInvalid`, since the transaction is
     aborted
-- Currently only PostgreSQL is supported with the `pg` gem, but it should be simple to add support for other databases.
+- Currently PostgreSQL and SQLite are supported with the `pg` and `sqlite3` gem
+- SQLite support is limited to unique constraints and check constraints, with no support for the `name` field on the unique constraints
 
 ## Installation
 
@@ -169,7 +183,8 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 **Requirements:**
 - PostgreSQL with `psql`, `createdb`, `dropdb`
-- NodeJS 18 with `npm`
+- Sqlite3
+- NodeJS 22 with `npm`
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
