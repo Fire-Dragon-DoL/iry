@@ -23,10 +23,10 @@ module Iry
         hashed_id = "_#{digest}"
         name = "idx_on_#{keys.join("_")}"
 
-        short_limit = max_index_name_size - hashed_identifier.bytesize
+        short_limit = max_index_name_size - hashed_id.bytesize
         short_name = name.mb_chars.limit(short_limit).to_s
 
-        "#{short_name}#{hashed_identifier}"
+        "#{short_name}#{hashed_id}"
       end
 
       # @return [<Symbol>]
